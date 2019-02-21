@@ -128,7 +128,7 @@
     },
     "overrides": [
     {
-      "files": ["app/**/*spec.js"],
+      "files": ["app/**/*spec.js", "nightmare/**/*.spec.js"],
       "rules": {
         "max-lines-per-function": "off"
       }

@@ -411,3 +411,10 @@ Nightmare.action('pickToday', function (input, done) {
   .wait(elementToSelect => document.querySelector(elementToSelect).value, input)
   .then(() => { done(); });
 });
+
+Nightmare.action('waitProgressBarToFinish', function (done) {
+  this.wait(() => {
+    return !document.querySelector('#nprogress');
+  })
+  .then(() => { done(); });
+});
