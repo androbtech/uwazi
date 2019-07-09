@@ -9,3 +9,9 @@ export {
   validateRequest,
   handleError,
 };
+
+export default {
+  createError,
+  validateRequest,
+  handleError,
+};

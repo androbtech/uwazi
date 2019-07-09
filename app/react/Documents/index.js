@@ -3,8 +3,8 @@ import TocForm from './components/TocForm';
 import ShowToc from './components/ShowToc';
 import DocumentSidePanel from './components/DocumentSidePanel';
 
-export default {
-  api: DocumentsAPI,
+export {
+  DocumentsAPI as api,
   TocForm,
   ShowToc,
   DocumentSidePanel

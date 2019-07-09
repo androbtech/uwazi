@@ -12,7 +12,8 @@ import { generateFileName } from 'api/utils/files';
 import fs from 'fs';
 import path from 'path';
 import configPaths from '../config/paths';
-import { validateRequest, handleError } from '../utils';
+// import { validateRequest, handleError } from '../utils';
+import utils from '../utils';
 import needsAuthorization from '../auth/authMiddleware';
 import captchaAuthorization from '../auth/captchaMiddleware';
 import uploads from './uploads';
@@ -70,7 +71,7 @@ export default (app) => {
 
     upload.any(),
 
-    validateRequest(Joi.object({
+    utils.validateRequest(Joi.object({
       document: Joi.string().required()
     }).required()),
 
@@ -82,7 +83,7 @@ export default (app) => {
     multer().any(),
     captchaAuthorization(),
     (req, res, next) => { req.body = JSON.parse(req.body.entity); return next(); },
-    validateRequest(saveSchema),
+    utils.validateRequest(saveSchema),
     async (req, res) => {
       const entity = req.body;
       entity.attachments = [];
@@ -113,7 +114,7 @@ export default (app) => {
 
     upload.any(),
 
-    validateRequest(Joi.object({
+    utils.validateRequest(Joi.object({
       template: Joi.string().required()
     }).required()),
 
@@ -127,7 +128,7 @@ export default (app) => {
       });
 
       loader.on('loadError', (error) => {
-        req.getCurrentSessionSockets().emit('IMPORT_CSV_ERROR', handleError(error));
+        req.getCurrentSessionSockets().emit('IMPORT_CSV_ERROR', utils.handleError(error));
       });
 
       req.getCurrentSessionSockets().emit('IMPORT_CSV_START');
@@ -161,7 +162,7 @@ export default (app) => {
 
     needsAuthorization(['admin', 'editor']),
 
-    validateRequest(Joi.object({
+    utils.validateRequest(Joi.object({
       _id: Joi.string().required()
     }).required(), 'query'),
 
@@ -181,7 +182,7 @@ export default (app) => {
 
     upload.any(),
 
-    validateRequest(Joi.object({
+    utils.validateRequest(Joi.object({
       document: Joi.string().required()
     }).required()),
 

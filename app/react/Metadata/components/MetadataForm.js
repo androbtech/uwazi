@@ -7,7 +7,7 @@ import React, { Component } from 'react';
 
 import { FormGroup } from 'app/ReactReduxForms';
 import { Select as SimpleSelect } from 'app/Forms';
-import { filterBaseProperties } from 'app/Entities/utils/filterBaseProperties';
+import entitiesUtil from 'app/Entities/utils/filterBaseProperties';
 import { notify } from 'app/Notifications';
 import { I18NLink, t } from 'app/I18N';
 import { Icon } from 'UI';
@@ -34,7 +34,7 @@ export class MetadataForm extends Component {
   }
 
   onSubmit(metadata) {
-    this.props.onSubmit(filterBaseProperties(metadata), this.props.model);
+    this.props.onSubmit(entitiesUtil.filterBaseProperties(metadata), this.props.model);
   }
 
   onSubmitFailed() {

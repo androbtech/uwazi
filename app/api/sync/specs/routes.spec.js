@@ -2,13 +2,16 @@ import 'api/utils/jasmineHelpers';
 
 import express from 'express';
 
+jest.mock('../../auth/authMiddleware.js', () => () => (_req, _res, next) => {
+  next();
+});
+
 import { models } from 'api/odm';
 import entities from 'api/entities';
 import requestAPI from 'supertest';
 import search from 'api/search/search';
 import path from 'path';
 import fs from 'fs';
-import * as auth from 'api/auth';
 
 import instrumentRoutes from '../../utils/instrumentRoutes';
 import syncRoutes from '../routes.js';
@@ -26,6 +29,7 @@ describe('sync', () => {
   };
 
   beforeEach(async () => {
+    jest.mock('../../auth');
     routes = instrumentRoutes(syncRoutes);
     models.model1 = {
       save: jasmine.createSpy('model1.save'),
@@ -112,9 +116,6 @@ describe('sync', () => {
 
       it('should place document without changing name on /uploads', async () => {
         pathsConfig.uploadDocumentsPath = `${__dirname}/uploads/`;
-        spyOn(auth, 'needsAuthorization').and.callFake(() => (_req, _res, next) => {
-          next();
-        });
         try {
           fs.unlinkSync(path.join(pathsConfig.uploadDocumentsPath, 'test.txt'));
         } catch (e) {
@@ -123,12 +124,13 @@ describe('sync', () => {
         const app = express();
         syncRoutes(app);
 
-        await requestAPI(app)
+        const response = await requestAPI(app)
         .post('/api/sync/upload')
         .set('X-Requested-With', 'XMLHttpRequest')
         .attach('file', path.join(__dirname, 'test.txt'));
 
         const properlyUploaded = fs.existsSync(path.join(pathsConfig.uploadDocumentsPath, 'test.txt'));
+        expect(response.status).toBe(200);
         expect(properlyUploaded).toBeTruthy();
       });
     });

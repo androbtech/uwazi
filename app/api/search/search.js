@@ -1,11 +1,13 @@
 import errorLog from 'api/log/errorLog';
 import date from 'api/utils/date';
 import { comonFilters, defaultFilters, allUniqueProperties, textFields } from 'shared/comonProperties';
-import { detect as detectLanguage } from 'shared/languages';
 import translate, { getLocaleTranslation, getContext } from 'shared/translate';
 import translations from 'api/i18n/translations';
-import { index as elasticIndex } from 'api/config/elasticIndexes';
+import elasticIndexes from 'api/config/elasticIndexes';
+
+import languagesUtil from 'shared/languages';
 import languages from 'shared/languagesList';
+
 import dictionariesModel from 'api/thesauris/dictionariesModel';
 import { createError } from 'api/utils';
 import relationtypes from 'api/relationtypes';
@@ -249,7 +251,7 @@ const mainSearch = (query, language, user) => {
     if (query.geolocation) {
       searchGeolocation(documentsQuery, filteringTypes, templates);
     }
-    return elastic.search({ index: elasticIndex, body: documentsQuery.query() })
+    return elastic.search({ index: elasticIndexes.index, body: documentsQuery.query() })
     .then(processResponse)
     .catch((e) => {
       throw createError(e.message, 400);
@@ -372,7 +374,7 @@ const search = {
       .language(language)
       .query();
 
-      return elastic.search({ index: elasticIndex, body: query })
+      return elastic.search({ index: elasticIndexes.index, body: query })
       .then((response) => {
         if (response.hits.hits.length === 0) {
           return {
@@ -397,7 +399,7 @@ const search = {
       delete doc.pdfInfo;
 
       let action = {};
-      action[_action] = { _index: elasticIndex, _type: type, _id: id };
+      action[_action] = { _index: elasticIndexes.index, _type: type, _id: id };
       if (_action === 'update') {
         _doc = { doc: _doc };
       }
@@ -409,13 +411,13 @@ const search = {
         const fullText = Object.values(doc.fullText).join('\f');
 
         action = {};
-        action[_action] = { _index: elasticIndex, _type: 'fullText', parent: id, _id: `${id}_fullText` };
+        action[_action] = { _index: elasticIndexes.index, _type: 'fullText', parent: id, _id: `${id}_fullText` };
         body.push(action);
 
         const fullTextQuery = {};
         let language;
         if (!doc.file || doc.file && !doc.file.language) {
-          language = detectLanguage(fullText);
+          language = languagesUtil.detect(fullText);
         }
         if (doc.file && doc.file.language) {
           language = languages(doc.file.language);
@@ -441,18 +443,18 @@ const search = {
 
   bulkDelete(docs) {
     const type = 'entity';
-    const body = docs.map(doc => ({ delete: { _index: elasticIndex, _type: type, _id: doc._id } }));
+    const body = docs.map(doc => ({ delete: { _index: elasticIndexes.index, _type: type, _id: doc._id } }));
     return elastic.bulk({ body });
   },
 
   delete(entity) {
     const id = entity._id.toString();
-    return elastic.delete({ index: elasticIndex, type: 'entity', id });
+    return elastic.delete({ index: elasticIndexes.index, type: 'entity', id });
   },
 
   deleteLanguage(language) {
     const query = { query: { match: { language } } };
-    return elastic.deleteByQuery({ index: elasticIndex, body: query });
+    return elastic.deleteByQuery({ index: elasticIndexes.index, body: query });
   }
 };
 

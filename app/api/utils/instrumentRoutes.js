@@ -1,4 +1,4 @@
-import * as utils from 'api/utils';
+import utils from 'api/utils';
 
 const createSpy = (key, resolve) => jasmine.createSpy(key).and.callFake((...args) => {
   resolve(`${key}:${args.join(',')}`);

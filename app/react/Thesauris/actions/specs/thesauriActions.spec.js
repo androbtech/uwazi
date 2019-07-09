@@ -18,6 +18,7 @@ describe('thesaurisActions', () => {
 
   beforeEach(() => {
     mockID();
+
     dispatch = jasmine.createSpy('dispatch');
     getState = jasmine.createSpy('getState').and.returnValue({ thesauri: { data: { values: [{ label: 'something' }, { label: '' }] } } });
     backend.restore();
